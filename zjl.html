@@ -1,0 +1,430 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>演唱会查询结果</title>
+  <style>
+    @keyframes rainbow {
+      0% { background-position: 0% center; }
+      100% { background-position: 200% center; }
+    }
+
+    @keyframes bgPulse {
+      0% {
+        background-size: 100% 100%;
+        filter: hue-rotate(0deg);
+      }
+      50% {
+        background-size: 120% 120%;
+        filter: hue-rotate(180deg);
+      }
+      100% {
+        background-size: 100% 100%;
+        filter: hue-rotate(360deg);
+      }
+    }
+
+    @keyframes rotate {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @keyframes textGradient {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .result-card {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+
+    .dynamic-bg-title {
+      background: radial-gradient(circle at center, #ff3366, #ba2c95, #4169e1) !important;
+      background-size: 120% 120% !important;
+      position: relative;
+      overflow: hidden;
+      border-radius: 8px;
+      animation: bgPulse 8s infinite ease-in-out !important;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      margin-bottom: 20px;
+    }
+
+    .dynamic-bg-title::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle at center,
+        rgba(255, 255, 255, 0.2) 0%,
+        rgba(255, 255, 255, 0) 50%
+      );
+      animation: rotate 10s linear infinite;
+    }
+
+    .dynamic-bg-title div {
+      padding: 20px;
+      font-size: 24px;
+      font-weight: bold;
+      color: white;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .result-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+
+    .result-table th, .result-table td {
+      padding: 15px;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
+
+    .result-table th {
+      background: linear-gradient(45deg, #ff3366, #ba2c95, #4169e1);
+      color: white;
+      font-weight: bold;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+
+    .result-table tr:hover {
+      background: #f9f9f9;
+    }
+
+    .status-tag {
+      display: inline-block;
+      padding: 8px 16px;
+      border-radius: 20px;
+      color: white;
+      font-weight: 500;
+      font-size: 14px;
+      text-align: center;
+      min-width: 80px;
+      background: linear-gradient(135deg, #2196F3, #1976D2);
+      text-shadow: 0 1px 1px rgba(0,0,0,0.2);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
+    }
+
+    .back-button {
+      display: inline-block;
+      padding: 12px 25px;
+      margin: 20px 0;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      text-decoration: none;
+      background: linear-gradient(45deg, #ff3366, #ba2c95, #4169e1);
+      background-size: 200% auto;
+      cursor: pointer;
+      font-weight: bold;
+      animation: rainbow 6s linear infinite;
+      transition: transform 0.3s ease;
+    }
+
+    .back-button:hover {
+      transform: translateY(-2px);
+    }
+
+    .notice-text {
+      color: #666;
+      margin: 15px 0;
+      font-size: 14px;
+      text-align: center;
+      font-style: italic;
+    }
+
+    .custom-text {
+      text-align: center;
+      margin: 20px auto;
+      padding: 12px 20px;
+      font-size: 20px;
+      font-weight: bold;
+      line-height: 1.5;
+      width: 80%;
+      background: white;
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+      background-image: linear-gradient(90deg,
+        #ff1a1a,
+        #ff3366,
+        #4169e1,
+        #ff1a1a
+      );
+      background-size: 300% 100%;
+      animation: textGradient 6s linear infinite;
+    }
+
+    .promotional-image {
+      width: 70%;
+      height: auto;
+      object-fit: contain;
+      border-radius: 6px;
+      margin: 20px auto;
+      display: block;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .content-wrapper {
+      padding: 20px;
+    }
+
+    /* 新增艺术家图片相关样式 */
+    .artist-container {
+      text-align: center;
+      margin: 20px auto;
+      max-width: 300px;
+    }
+
+    .artist-image {
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      display: none;
+      margin: 0 auto;
+      object-fit: cover;
+      max-height: 300px;
+    }
+
+    .artist-name {
+      font-size: 18px;
+      font-weight: bold;
+      margin-top: 10px;
+      color: #333;
+      display: none;
+    }
+
+    /* 移动端适配 */
+    @media (max-width: 768px) {
+      .status-tag {
+        padding: 6px 12px;
+        font-size: 12px;
+        min-width: 60px;
+      }
+
+      .result-table th, .result-table td {
+        padding: 10px;
+        font-size: 14px;
+      }
+
+      .dynamic-bg-title div {
+        font-size: 20px;
+      }
+
+      .custom-text {
+        font-size: 16px;
+        padding: 8px 16px;
+      }
+
+      .artist-container {
+        max-width: 250px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="result-card">
+      <!-- 1. 标题 -->
+      <div class="dynamic-bg-title">
+        <div>歌手：周杰伦 查询结果</div>
+      </div>
+
+      <div class="content-wrapper">
+        <!-- 2. 自定义图片 -->
+        <img src="https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/dydfliu.jpg" class="promotional-image" alt="演唱会宣传图">
+
+        <!-- 3. 自定义文字 -->
+        <div class="custom-text">国内国外<br>演唱会、音乐节、见面会等<br>演出票务管家，欢迎扫码咨询</div>
+
+        <!-- 4. 艺术家图片和名字容器 -->
+        <style>
+          .artist-name {
+            text-align: center;
+            margin: 10px auto;
+            font-size: 24px;
+            font-weight: bold;
+            background: radial-gradient(circle at center, #ff3366, #ba2c95, #4169e1);
+            background-size: 300% 100%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: textGradient 6s linear infinite;
+          }
+        </style>
+        <div class="artist-container">
+          <img id="artistImage" class="artist-image" alt="歌手图片">
+          <div id="artistName" class="artist-name"></div>
+        </div>
+
+        <!-- 5. 查询结果 -->
+        <p class="notice-text">仅供参考，具体日期请以官方为准</p>
+        
+        <table class="result-table">
+          <thead>
+            <tr>
+              <th>歌手</th>
+              <th>城市</th>
+              <th>日期</th>
+              <th>状态</th>
+            </tr>
+          </thead>
+          <tbody>
+            
+                <tr>
+                  <td>周杰伦</td>
+                  <td>[成都]</td>
+                  <td>2025年10月</td>
+                  <td><span class="status-tag">未官宣</span></td>
+                </tr>
+              
+                <tr>
+                  <td>周杰伦</td>
+                  <td>[武汉]</td>
+                  <td>2025年10月</td>
+                  <td><span class="status-tag">未官宣</span></td>
+                </tr>
+              
+                <tr>
+                  <td>周杰伦</td>
+                  <td>[三亚]</td>
+                  <td>2025年3月28-30日</td>
+                  <td><span class="status-tag">已官宣</span></td>
+                </tr>
+              
+                <tr>
+                  <td>周杰伦</td>
+                  <td>[苏州]</td>
+                  <td>2025年4月</td>
+                  <td><span class="status-tag">未官宣</span></td>
+                </tr>
+              
+                <tr>
+                  <td>周杰伦</td>
+                  <td>[南宁]</td>
+                  <td>2025年4月25-27日</td>
+                  <td><span class="status-tag">已官宣</span></td>
+                </tr>
+              
+                <tr>
+                  <td>周杰伦</td>
+                  <td>[上海]</td>
+                  <td>2025年5月</td>
+                  <td><span class="status-tag">未官宣</span></td>
+                </tr>
+              
+                <tr>
+                  <td>周杰伦</td>
+                  <td>[香港]</td>
+                  <td>2025年6月28-30日</td>
+                  <td><span class="status-tag">已官宣</span></td>
+                </tr>
+              
+                <tr>
+                  <td>周杰伦</td>
+                  <td>[济南]</td>
+                  <td>2025年9月</td>
+                  <td><span class="status-tag">未官宣</span></td>
+                </tr>
+              
+          </tbody>
+        </table>
+
+        <a href="/" class="back-button">返回搜索</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+window.DOMAIN_CONFIGS = {"yyyy.zcguard.com":{"customText":"Yyyy票务","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/4041738852634_.pic.jpg","showArtistImage":false,"customTopText":""},"dabiaoge.zcguard.com":{"customText":"壹头牛票务","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/WechatIMG1071.jpg","showArtistImage":false,"customTopText":""},"plpl.zcguard.com":{"customText":"演出动态实时更新","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/niuniu.jpg","showArtistImage":false,"customTopText":"2025你最想看谁？"},"ympw.zcguard.com":{"customText":"圆梦票务","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/WechatIMG13077.jpg","showArtistImage":false,"customTopText":""},"dingding.zcguard.com":{"customText":"国内国外<br>演唱会、音乐节、见面会<br>叮叮票务 身边的演出票务管家","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/dingding.jpg","showArtistImage":false,"customTopText":""},"kuso.zcguard.com":{"customText":"kuso票务","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/kuso1.jpg","showArtistImage":true,"customTopText":""},"kkpw.zcguard.com":{"customText":"认准KK康康票务","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/kk2.jpg","showArtistImage":false,"customTopText":""},"zhuzhu.zcguard.com":{"customText":"靠谱票务找猪猪<br>🛰️:ZHM-1557-","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/zhuzhu.jpg","showArtistImage":false,"customTopText":""},"xiaocao.zcguard.com":{"customText":"国内国外<br>演唱会、音乐节、见面会等 <br>演出票务管家，欢迎扫码咨询","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/xc.jpg","showArtistImage":true,"customTopText":""},"diudiu.zcguard.com":{"customText":"国内国外<br>演唱会、音乐节、见面会等 <br>演出票务管家，欢迎扫码咨询","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/diudiu.jpg","showArtistImage":false,"customTopText":""},"nice.zcguard.com":{"customText":"国内国外<br>演唱会、音乐节、见面会等 <br>演出票务管家，欢迎扫码咨询","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/nice.jpg","showArtistImage":false,"customTopText":""},"daming.zcguard.com":{"customText":"国内国外<br>演唱会、音乐节、见面会等 <br>演出票务管家，欢迎扫码咨询","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/daming.jpg","showArtistImage":false,"customTopText":""},"qw1.zcguard.com":{"customText":"玟琼票务","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/qw1.jpg","showArtistImage":false,"customTopText":""},"qw2.zcguard.com":{"customText":"玟琼票务","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/qw2.jpg","showArtistImage":false,"customTopText":""},"tx168.zcguard.com":{"customText":"国内国外<br>演唱会、音乐节、见面会等<br>演出票务管家，欢迎咨询：🌍tx168DC","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/tx168.jpg","showArtistImage":false,"customTopText":""},"chen.zcguard.com":{"customText":"国内国外<br>演唱会、音乐节、见面会等 <br>演出票务管家，欢迎扫码咨询","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/chen.jpg","showArtistImage":false,"customTopText":""},"jc1.zcguard.com":{"customText":"国内国外<br>演唱会、音乐节、见面会<br>身边的演出票务管家","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/jiuchuan.jpg","showArtistImage":false,"customTopText":""},"jc2.zcguard.com":{"customText":"国内国外<br>演唱会、音乐节、见面会<br>身边的演出票务管家","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/jiuchuan2.jpg","showArtistImage":false,"customTopText":""},"lizi.zcguard.com":{"customText":"栗子ticket🎫","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/lizi.jpg","showArtistImage":false,"customTopText":""},"zz.zcguard.com":{"customText":"拽拽专注演出","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/zz.jpg","showArtistImage":false,"customTopText":""},"xg.zcguard.com":{"customText":"小狗娱乐","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/xg.jpg","showArtistImage":false,"customTopText":""},"baj.zcguard.com":{"customText":"全国演出咨询今夕何夕","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/baj.jpg","showArtistImage":false,"customTopText":""},"hc.zcguard.com":{"customText":"演出咨询认准红尘🎫","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/hc.jpg","showArtistImage":false,"customTopText":""},"zz1.zcguard.com":{"customText":"国内国外<br>演唱会、音乐节、见面会等<br>你身边的演出票务管家","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/zz1.jpg","showArtistImage":false,"customTopText":""},"zz2.zcguard.com":{"customText":"国内国外<br>演唱会、音乐节、见面会等<br>你身边的演出票务管家","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/zz2.jpg","showArtistImage":false,"customTopText":""},"jyyc.zcguard.com":{"customText":"国内国外<br>演唱会、音乐节、见面会等<br>演出票务管家 欢迎扫码咨询","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/jyyc.jpg","showArtistImage":false,"customTopText":""},"cbxz1.zcguard.com":{"customText":"国内国外<br>演唱会、音乐节、见面会等<br>演出票务管家 欢迎咨询","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/cbxz1.jpg","showArtistImage":false,"customTopText":""},"cbxz.zcguard.com":{"customText":"国内国外<br>演唱会、音乐节、见面会等<br>演出票务管家 欢迎扫码咨询","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/cbxz.jpg","showArtistImage":false,"customTopText":""},"fy19555.zcguard.com":{"customText":"国内海外音乐/演唱会Live<br>明星周边/路演综艺录制<br>Fy19555","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/fy19555.jpg","showArtistImage":false,"customTopText":""},"t1.zcguard.com":{"customText":"国内海外音乐/演唱会Live<br>明星周边/路演综艺录制<br>T10111111","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/T10111111-1.jpg","showArtistImage":false,"customTopText":""},"t2.zcguard.com":{"customText":"国内海外音乐/演唱会Live<br>明星周边/路演综艺录制<br>T10111111","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/T10111111-2.jpg","showArtistImage":false,"customTopText":""},"dog.zcguard.com":{"customText":"国内海外音乐<br>演唱会Live明星周边/路演综艺录制 17950160<br>种太阳带你看演出","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/adog.jpg","showArtistImage":false,"customTopText":""},"cw.zcguard.com":{"customText":"【赤乌票务】","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/cw.jpg","showArtistImage":false,"customTopText":""},"cc.zcguard.com":{"customText":"嘻🎫带你看演出","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/cc1.jpg","showArtistImage":false,"customTopText":""},"kunge.zcguard.com":{"customText":"诚信专业代拍","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/kunge.jpg","showArtistImage":true,"customTopText":"牛批class亮闪闪"},"wdqn11.zcguard.com":{"customText":"购票+wdqn11  认准kk康康","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/wdqn11.jpg","showArtistImage":false,"customTopText":""},"gouqidg.zcguard.com":{"customText":"国内国外<br>演唱会、音乐节、见面会等 <br>演出票务管家，欢迎扫码咨询","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/gouqidg.jpg","showArtistImage":false,"customTopText":""},"huainian.zcguard.com":{"customText":"国内国外<br>演唱会、音乐节、见面会等 <br>演出票务管家，欢迎扫码咨询","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/huainian.jpg","showArtistImage":false,"customTopText":""},"ym.zcguard.com":{"customText":"国内国外<br>演唱会、音乐节、见面会等 <br>圆梦票务","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/ympw1.jpg","showArtistImage":true,"customTopText":""},"wqsm.zcguard.com":{"customText":"国内国外<br>演唱会、音乐节、见面会等<br>演出票务管家，欢迎扫码咨询","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/wqsm.jpg","showArtistImage":false,"customTopText":""},"q.zcguard.com":{"customText":"国内国外<br>演唱会、音乐节、见面会等<br>演出票务管家，欢迎扫码咨询","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/q.jpg","showArtistImage":false,"customTopText":""},"qx1.zcguard.com":{"customText":"国内海外 新马泰韩音乐/演唱会Live<br>明星周边/路演综艺录制","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/qx1.jpg","showArtistImage":true,"customTopText":""},"qx2.zcguard.com":{"customText":"国内海外 新马泰韩音乐/演唱会Live<br>明星周边/路演综艺录制","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/qx2.jpg","showArtistImage":false,"customTopText":""},"qixiang1.zcguard.com":{"customText":"国内 国外 演唱会 音乐节 <br>欢迎  扫码咨询  票务管家","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/qixiang1.jpg","showArtistImage":true,"customTopText":""},"qixiang2.zcguard.com":{"customText":"国内 国外 演唱会 音乐节 <br>欢迎咨询","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/qixiang2.jpg","showArtistImage":false,"customTopText":""},"ran.zcguard.com":{"customText":"国内国外<br>演唱会、音乐节、见面会等<br>演出票务管家，欢迎扫码咨询","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/ran.jpg","showArtistImage":true,"customTopText":""},"mwzz.zcguard.com":{"customText":"国内国外<br>演唱会、音乐节、见面会等<br>演出票务管家，欢迎扫码咨询","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/mwzz.jpg","showArtistImage":true,"customTopText":""},"dingnuo.zcguard.com":{"customText":"国内国外<br>演唱会、音乐节、见面会<br>身边的演出票务管家","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/dingnuo.jpg","showArtistImage":false,"customTopText":""},"xhanyu.zcguard.com":{"customText":"XHanYu🎫","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/xhanyu3.jpg","showArtistImage":false,"customTopText":""},"youqi.zcguard.com":{"customText":"国内国外<br>演唱会、音乐节、见面会等<br>演出票务管家，欢迎咨询","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/youqi.jpg","showArtistImage":false,"customTopText":""},"youqi1.zcguard.com":{"customText":"国内国外<br>演唱会、音乐节、见面会等<br>演出票务管家，欢迎扫码咨询","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/youqi1.jpg","showArtistImage":true,"customTopText":""},"dyn.zcguard.com":{"customText":"国内海外音乐<br>演唱会Live明星周边/路演综艺录制<br>🛰️ dyn-lsy","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/dyn.jpg","showArtistImage":false,"customTopText":""},"xiang.zcguard.com":{"customText":"祥 hao464373878","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/xiang.jpg","showArtistImage":true,"customTopText":""},"xiaodiao.zcguard.com":{"customText":"国内国外<br>演唱会、音乐节、见面会等<br>演出票务管家，欢迎扫码咨询","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/xiaodiao.jpg","showArtistImage":true,"customTopText":""},"abge.zcguard.com":{"customText":"国内国外<br>演唱会、音乐节、见面会等<br>演出票务管家，欢迎扫码咨询","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/abge.jpg","showArtistImage":true,"customTopText":""},"xiaoli.zcguard.com":{"customText":"国内国外<br>演唱会、音乐节、见面会等<br>演出票务管家，欢迎扫码咨询","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/xiaoli.jpg","showArtistImage":true,"customTopText":""},"chihua.zcguard.com":{"customText":"国内国外<br>演唱会、音乐节、见面会等<br>演出票务管家，欢迎咨询","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/chihua.jpg","showArtistImage":true,"customTopText":""},"acsy.zcguard.com":{"customText":"国内国外<br>演唱会、音乐节、见面会等<br>演出票务管家，欢迎扫码咨询","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/acsy.jpg","showArtistImage":true,"customTopText":""},"jh.zcguard.com":{"customText":"国内海外音乐<br>演唱会Live明星周边/路演综艺录制<br>狂欢热线🛰️ JH 312945 ","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/jh.jpg","showArtistImage":false,"customTopText":""},"dydfliu.zcguard.com":{"customText":"国内国外<br>演唱会、音乐节、见面会等<br>演出票务管家，欢迎扫码咨询","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/dydfliu.jpg","showArtistImage":true,"customTopText":""},"tianwen.zcguard.com":{"customText":"国内国外<br>演唱会、音乐节、见面会等<br>演出票务管家，欢迎扫码咨询","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/tianwen.jpg","showArtistImage":true,"customTopText":""},"xlm.zcguard.com":{"customText":"暹罗猫票务 微信号：Lzl0106nb","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/xlm.jpg","showArtistImage":true,"customTopText":"认准暹罗猫票务"},"aiou1.zcguard.com":{"customText":"国内国外<br>演唱会、音乐节、见面会等<br>演出票务管家，欢迎扫码咨询","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/aiou.jpg","showArtistImage":true,"customTopText":""},"aiou.zcguard.com":{"customText":"国内国外<br>演唱会、音乐节、见面会等<br>演出票务管家，欢迎咨询","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/aiou_tu.jpg","showArtistImage":false,"customTopText":""},"xiaowai.zcguard.com":{"customText":"去现场，为所爱！<br>全程为您提供优质服务<br>欢迎扫码咨询!","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/xiaowai.jpg","showArtistImage":true,"customTopText":"国内外演唱会<br>音乐节、见面会节目录制等<br>专业演出票务"},"loser.zcguard.com":{"customText":"去现场，为所爱！<br>全程为您提供优质服务<br>欢迎扫码咨询!","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/loser.jpg","showArtistImage":true,"customTopText":"国内外演唱会<br>音乐节、见面会节目录制等<br>专业演出票务"},"duoduo.zcguard.com":{"customText":"","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/duoduo.jpg","showArtistImage":true,"customTopText":"国内国外<br>演唱会、音乐节、见面会等<br>演出票务管家，欢迎扫码咨询"},"oo.zcguard.com":{"customText":"","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/oo.jpg","showArtistImage":false,"customTopText":""},"czpw.zcguard.com":{"customText":"追星&看演出认准专业票务","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/czpw.jpg","showArtistImage":true,"customTopText":""},"ac.zcguard.com":{"customText":"国内国外<br>演唱会、音乐节、见面会<br>身边的演出票务管家<br> 认准 AC票娱","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/ac.jpg","showArtistImage":false,"customTopText":""},"bz.zcguard.com":{"customText":"国内 海外 演唱会门票<br>全国网红餐厅 网红美食等等<br>请咨询全万能票务管家  彬仔 ","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/bz.jpg","showArtistImage":true,"customTopText":""},"jj.zcguard.com":{"customText":"国内国外<br>演唱会、音乐节、见面会等<br>江江带你看演出","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/jj.jpg","showArtistImage":true,"customTopText":""},"dawei.zcguard.com":{"customText":"专业演出认准大卫","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/dawei.jpg","showArtistImage":false,"customTopText":"演唱会、音乐节、见面会"},"hungee.zcguard.com":{"customText":"HUNGEE|文娱<br>身边的演出票务管家","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/huangee.jpg","showArtistImage":true,"customTopText":"国内国外<br>演唱会、音乐节、见面会"},"chabai.zcguard.com":{"customText":"【茶白】身边的演出票务管家","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/chabai.jpg","showArtistImage":false,"customTopText":"国内国外<br>演唱会、音乐节、见面会等<br>演出票务管家，欢迎咨询"},"mihoutao.zcguard.com":{"customText":"国内国际演出门票<br>音乐节综艺录制见面会<br>扫码咨询演出计划","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/mihoutao.jpg","showArtistImage":true,"customTopText":""},"xiaoyang.zcguard.com":{"customText":"国内国外<br>演唱会、音乐节、见面会等<br>演出票务管家，欢迎扫码咨询","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/xiaoyang.jpg","showArtistImage":true,"customTopText":""},"zhenpiao.zcguard.com":{"customText":"国内国际演出门票<br>音乐节综艺录制见面会<br>扫码咨询演出计划","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/zhenpiao.jpg","showArtistImage":true,"customTopText":""},"dayouyou.zcguard.com":{"customText":"国内国外演唱会、音乐节<br>见面会、路演、预录、打歌均有<br>欢迎扫码咨询！","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/dayouyou.jpg","showArtistImage":true,"customTopText":""},"dayouyou1.zcguard.com":{"customText":"国内国外演唱会、音乐节<br>见面会、路演、预录、打歌均有<br>欢迎咨询！","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/dayouyou1.jpg","showArtistImage":false,"customTopText":""},"nianxiao.zcguard.com":{"customText":"国内国外<br>演唱会、音乐节、见面会等<br>演出票务管家，欢迎扫码咨询","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/nianxiao.jpg","showArtistImage":true,"customTopText":""},"xiaozhi.zcguard.com":{"customText":"国内国外<br>演唱会、音乐节、见面会<br>小志票务 身边的演出票务管家","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/xiaozhi.jpg","showArtistImage":true,"customTopText":""},"ayu.zcguard.com":{"customText":"国内国外<br>演唱会、音乐节、见面会<br>路演、预录、打歌均有<br>欢迎扫码咨询！","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/ayu.jpg","showArtistImage":true,"customTopText":""},"xiaoce.zcguard.com":{"customText":"小策爱看演唱会","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/xiaoce.jpg","showArtistImage":true,"customTopText":"关注➕灯牌优先查询"},"wisdom.zcguard.com":{"customText":"国内国外<br>演唱会、音乐节、见面会<br>身边的演出票务管家","customImage":"https://zczhy.oss-cn-hangzhou.aliyuncs.com/img/wisdom.jpg","showArtistImage":true,"customTopText":""}};
+    // 获取艺术家图片
+    async function fetchArtistImage(artist) {
+      if (!artist) return null;
+      try {
+        const response = await fetch(`/artist-image?name=${encodeURIComponent(artist)}`);
+        if (!response.ok) throw new Error('获取艺术家图片失败');
+        const data = await response.json();
+        return data.imageUrl || null;
+      } catch (error) {
+        console.error('获取艺术家图片失败:', error);
+        return null;
+      }
+    }
+
+    // 检查是否显示艺术家图片
+    function shouldShowArtistImage() {
+      const hostname = window.location.hostname;
+      return window.DOMAIN_CONFIGS?.[hostname]?.showArtistImage ?? 
+             window.DOMAIN_CONFIGS?.['yyyy.zcguard.com']?.showArtistImage ?? 
+             false;
+    }
+
+    // 加载艺术家图片
+    async function loadArtistImage() {
+      // 检查是否需要显示艺术家图片
+      if (!shouldShowArtistImage()) return;
+
+      const imgElement = document.getElementById('artistImage');
+      const nameElement = document.getElementById('artistName');
+      
+      if (!imgElement || !nameElement) return;
+
+      // 从URL获取艺术家名称
+      const urlParams = new URLSearchParams(window.location.search);
+      const artist = urlParams.get('artist');
+      
+      if (!artist) return;
+
+      // 获取并显示图片
+      const imageUrl = await fetchArtistImage(artist);
+      if (imageUrl) {
+        imgElement.onload = () => {
+          imgElement.style.display = 'block';
+        };
+        imgElement.src = imageUrl;
+        nameElement.textContent = artist;
+        nameElement.style.display = 'block';
+      }
+    }
+
+    // 页面加载完成时执行
+    document.addEventListener('DOMContentLoaded', loadArtistImage);
+
+    // 监听 URL 变化
+    let lastUrl = location.href;
+    new MutationObserver(() => {
+      const url = location.href;
+      if (url !== lastUrl) {
+        lastUrl = url;
+        loadArtistImage();
+      }
+    }).observe(document, {subtree: true, childList: true});
+  </script>
+</body>
+</html>

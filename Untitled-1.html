@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -189,112 +188,7 @@
       50% { background-position: 100% 50%; }
       100% { background-position: 0% 50%; }
     }
-
   </style>
-  <script>
-    document.addEventListener('DOMContentLoaded', async function() {
-      const marqueeText = document.querySelector('.marquee-text');
-      
-      // 监听动画结束
-      marqueeText.addEventListener('animationend', () => {
-        // 移除当前动画
-        marqueeText.style.animation = 'none';
-        
-        // 强制浏览器重排
-        marqueeText.offsetHeight;
-        
-        // 重新添加动画
-        marqueeText.style.animation = 'marquee 20s linear infinite';
-      });
-
-      // 初始化时检查是否需要显示验证码
-      try {
-        const testResponse = await fetch('/concert-result?artist=test');
-        if (testResponse.status === 400 && await testResponse.text() === '请输入验证码') {
-          await showCaptcha();
-        }
-      } catch (error) {
-        console.error('检查验证码状态失败:', error);
-      }
-
-      // 初始化验证码相关事件监听
-      document.querySelector('.search-button').addEventListener('click', handleSearch);
-    });
-
-    async function showCaptcha() {
-      try {
-        const captchaContainer = document.getElementById('captchaContainer');
-        const captchaImage = document.getElementById('captchaImage');
-        
-        if (captchaContainer && captchaImage) {
-          captchaContainer.style.display = 'block';
-          captchaImage.style.display = 'none';
-          await refreshCaptcha();
-          captchaImage.style.display = 'block';
-        }
-      } catch (error) {
-        console.error('显示验证码失败:', error);
-        alert('加载验证码失败，请刷新页面重试');
-      }
-    }
-
-    async function refreshCaptcha() {
-      try {
-        const response = await fetch('/captcha');
-        if (!response.ok) {
-          throw new Error('获取验证码失败');
-        }
-        const data = await response.json();
-        if (!data.image) {
-          throw new Error('验证码图片数据无效');
-        }
-        const captchaImage = document.getElementById('captchaImage');
-        captchaImage.onerror = () => {
-          console.error('验证码图片加载失败');
-          alert('验证码图片加载失败，请点击图片重试');
-        };
-        captchaImage.src = data.image;
-        captchaImage.onclick = refreshCaptcha;
-      } catch (error) {
-        console.error('获取验证码失败:', error);
-        throw error;
-      }
-    }
-
-    async function handleSearch(e) {
-      e.preventDefault();
-      
-      const searchInput = document.getElementById('searchInput').value;
-      
-      if (!searchInput.trim()) {
-        alert('请输入歌手/城市名称');
-        return;
-      }
-
-      let url = '/concert-result?artist=' + encodeURIComponent(searchInput);
-      const captchaInput = document.getElementById('captchaInput');
-      if (captchaInput && captchaInput.value) {
-        url += '&captcha=' + encodeURIComponent(captchaInput.value);
-      }
-
-      try {
-        const response = await fetch(url);
-        const text = await response.text();
-        
-        if (response.status === 400 && text === '请输入验证码') {
-          await showCaptcha();
-          alert('请输入验证码');
-        } else if (response.ok) {
-          window.location.href = url;
-        } else {
-          alert(text || '查询失败，请稍后重试');
-        }
-      } catch (error) {
-        console.error('查询失败:', error);
-        alert('查询失败，请稍后重试');
-      }
-    }
-  </script>
 </head>
 <body>
   <div class="container">
@@ -325,16 +219,10 @@
       <div class="search-form">
         <div class="search-box">
           <input type="text" class="search-input" placeholder="请输入歌手名称或城市名称" id="searchInput" required>
-          <div id="captchaContainer" style="margin-bottom: 15px; display: none;">
-            <div style="display: flex; align-items: center; gap: 10px;">
-              <input type="text" id="captchaInput" class="search-input" placeholder="请输入验证码" style="margin: 0; flex: 1;">
-              <img id="captchaImage" src="" alt="验证码" style="display: none; height: 46px; cursor: pointer;">
-            </div>
-          </div>
-          <button type="submit" class="search-button">查询</button>
+          <button type="button" class="search-button" onclick="handleSearch()">查询</button>
         </div>
-      </div>
+        <div id="result"></div>
     </div>
-  </div>
-</body>
-</html>
+    <script src="script.js"></script>
+    </div
+
